@@ -1,0 +1,135 @@
+<html>
+<head>
+  <title>Art / Dev - Motion 2</title>
+  <script src="p5.min.js"></script>
+  <script>
+  var IMAGE_WIDTH = 640;    // Don't change this.
+  var IMAGE_HEIGHT = 640;   // Don't change this.
+  var bulletX = 0;
+  var bulletY = 0;
+  var particleCount = 100;
+  var particles = [];
+  var particleCounter = 0;
+  var rainFill = 640;
+  var delayFill = 0;
+
+  //=============== DO ALL YOUR WORK HERE =======================
+
+  function setup() {
+    createCanvas(IMAGE_WIDTH, IMAGE_HEIGHT); // don't change this
+
+     for (var i=0; i<particleCount; i++) {
+      var magnitude = random(0, 300);
+      var angle = random(0,2*PI )
+       particles[i] = {
+         x: random (200,400), //320 + magnitude * cos(angle);
+         y: 320 + magnitude * sin(angle),
+         r: random(8, 30),
+         hue: random(.6, 0.65),
+         vy:0,
+         vx:0,
+         x2:random (-20,20),
+         x3:random (-20,20),
+         x4:random (-20,20),
+         y2:random (-10,10),
+         y3:random (-20,20),
+         y4:random (-30,30),
+         alive:1
+
+        };
+     }
+     noStroke()
+     colorMode(HSB, 1)
+  }
+
+  function draw() {
+    fill(.5, 0, .4,1)
+    rect(0,0,width,height)
+
+    var currentParticle = particles[particleCounter]
+    var magnitude = random(1, 2)
+    var angle = random(0, 2*PI)
+    
+   
+    // currentParticle.x = bulletX //mouseX
+    // currentParticle.y = bulletY //mouseY
+
+      currentParticle.x = random (0,640)//mouseX
+      currentParticle.y = 0//mouseY
+
+    currentParticle.vx = magnitude * cos(angle)
+    currentParticle.vy = 7 //magnitude * (sin(angle))
+    currentParticle.alive = 1
+    particleCounter = (particleCounter+1) % particleCount
+
+    particles.forEach(updateParticle)
+    particles.forEach(drawParticle)
+
+    fill(0, 0, 0)
+    stroke(0);
+    strokeWeight(1);
+    textSize(16);
+    // text("Magnitude: "+magnitude,0, 20);
+    // text("Angle: "+angle,0, 40);
+    // text("vX: "+currentParticle.vx,0, 60);
+    // text("vY: "+currentParticle.vy,0, 80);
+    fill(.6, 1, 1)
+    stroke(.61,1,1);
+    rect(0,rainFill,640,640)
+    if (delayFill){
+    rainFill -=0.1
+}
+  }
+
+
+function mouseReleased() {
+
+      bulletY = mouseY
+      bulletX = mouseX
+}
+
+  function calculateParticle(particle) {
+  }
+
+
+  function updateParticle(particle) {
+    //particle.y+=5
+    //bulletY--
+    particle.y += particle.vy
+    //particle.x += particle.vx
+    
+  }
+
+  function drawParticle(particle) {
+    if(particle.alive)
+    {
+    fill(particle.hue,.8,1)
+    //r = random(-40,40)
+    //r2 = random (-40,40)
+    //ellipse(particle.x,particle.y,particle.r,particle.r)
+    stroke(particle.hue,.8,1)
+    strokeWeight(5)
+    bezier(particle.x,particle.y,particle.x-2,particle.y-2,particle.x-3,particle.y-4,particle.x-1,particle.y-7);
+    if (particle.y > rainFill)
+    {
+      delayFill = 1
+      ellipse(particle.x,particle.y,particle.r,particle.r)
+      if (particle.vy > 0)
+      {particle.vy = -particle.vy}
+    particle.alive= 0
+      
+    }
+    }
+  }
+
+  // =============== STOP WORKING HERE ==========================
+
+  </script>
+  <style>
+    body { padding: 0; margin: 5% 0 0; background-color: #666;}
+    canvas { margin: 0 auto; display:block; }
+  </style>
+</head>
+<body>
+</body>
+</html>
