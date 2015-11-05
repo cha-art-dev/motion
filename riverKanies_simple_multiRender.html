@@ -1,0 +1,245 @@
+<html>
+<head>
+  <title>Art / Dev - Motion 2</title>
+  <script src="p5.min.js"></script>
+  <script>
+  var IMAGE_WIDTH = 640;    // Don't change this.
+  var IMAGE_HEIGHT = 640;   // Don't change this.
+
+  //may need to scale models based on different unit values
+  //just assume all same scale for now
+  var unit = 2;
+
+  o = {x:320,y:320};
+  rad = 200;
+  angle = .2;
+  tilt = .2;
+
+//========= Parent Model
+  function setup() {
+    createCanvas(IMAGE_WIDTH, IMAGE_HEIGHT); // don't change this
+
+    //call all setup methods here
+    models = [];
+    setupFuncs = [setupRiver,setupModel,setupTri,setupQuad,setupModel];//everyone's setup functions will go here
+    drawFuncs = [drawRiver,drawModel,drawTri,drawQuad,drawModel];//everyone's draw functions will go here
+
+    //loop through for each model and init the model with it's setup function:
+    for(var i=0;i<setupFuncs.length;i++){
+      models[i] = setupFuncs[i](unit);//all sizing values: radius, magnitue, lenght, velocity, ... should be multiplied by a unit that can be controlled from the outside
+    }
+    
+
+  }
+
+  function draw() {
+    clear();
+
+    var origins = [];
+    angle += .002;
+    var zs = []
+    for(var i=0;i<setupFuncs.length;i++){
+      var rot = angle + i*TWO_PI/setupFuncs.length
+      origins[i] = {
+        x:o.x+rad*cos(rot),
+        y:o.y+rad*sin(rot)*tilt,
+        rot:rot
+      };
+      //angle+=TWO_PI/setupFuncs.length;
+      zs[i] = {i:i,z:sin(rot)}
+    }
+
+    function sortNumber(a,b) {
+        return a.z - b.z;
+    }
+
+    zs.sort(sortNumber)
+
+    console.log
+
+    for(var i=0;i<setupFuncs.length;i++){
+      var ind = zs[i].i
+      drawFuncs[ind](models[ind],origins[ind],unit)
+    }
+
+/*
+    //calculate distance of origins and render in ascending order:
+    var lastZ = 2;
+    var rendered = {};
+    var next
+    //do once for each model
+    for(var i=0; i<models.length;i++){
+      //render the next furthest away model
+      for(var j=0; j<models.length;j++){
+        var rot = angle + j*TWO_PI/setupFuncs.length
+        var z = sin(rot)
+        if (z<lastZ&&!rendered[j]){
+          lastZ = z
+          next = j
+          //console.log(j)
+        }
+      }
+      drawFuncs[next](models[next],origins[next],unit)
+      rendered[next]=true
+    }
+*/
+  }
+
+//=========Individual Models
+
+  function setupModel(unit){//every model has it's onw setupModel function
+    //no globals! all 'global' variables must be decalred within your setup function
+    //and should be namespaced as part of your individual model object (m below)
+    var m = {
+      hue: random(0,1),
+      rad: 100
+    };
+    //return the model object created in your setupModel function,
+    //it will be added to the models array
+    return m;
+  }
+
+  function drawModel(m,o,unit){
+    //*** this was in the global draw function, include this kind of stuff in your individual drawModel function instead
+    noStroke()
+    colorMode(HSB, 1)
+    //**
+
+    fill(.5,1,.4,0.01);
+    //rect(0,0,width,height);
+
+    fill(m.hue,.5,1,0)
+    ellipse(o.x,o.y,m.rad*unit,m.rad*unit)
+
+  }
+
+  function setupTri(unit){//every model has it's onw setupModel function
+    //no globals! all 'global' variables must be decalred within your setup function
+    //and should be namespaced as part of your individual model object (m below)
+    var m = {
+      hue: random(0,1),
+      rad: 100
+    };
+    //return the model object created in your setupModel function,
+    //it will be added to the models array
+    return m;
+  }
+
+  function drawTri(m,o,unit){
+    //*** this was in the global draw function, include this kind of stuff in your individual drawModel function instead
+    noStroke()
+    colorMode(HSB, 1)
+    //**
+
+    fill(.5,1,.4,0.01);
+    //rect(0,0,width,height);
+
+    fill(m.hue,.5,1,0)
+    triangle(o.x,o.y-m.rad,o.x+m.rad*cos(PI/6),o.y+m.rad*sin(PI/6),o.x-m.rad*cos(PI/6),o.y+m.rad*sin(PI/6))
+
+  }
+
+
+  function setupQuad(unit){//every model has it's onw setupModel function
+    //no globals! all 'global' variables must be decalred within your setup function
+    //and should be namespaced as part of your individual model object (m below)
+    var m = {
+      hue: random(0,1),
+      rad: 100
+    };
+    //return the model object created in your setupModel function,
+    //it will be added to the models array
+    return m;
+  }
+
+  function drawQuad(m,o,unit){
+    //*** this was in the global draw function, include this kind of stuff in your individual drawModel function instead
+    noStroke()
+    colorMode(HSB, 1)
+    //**
+
+    fill(.5,1,.4,0.01);
+    //rect(0,0,width,height);
+
+    fill(m.hue,.5,1,0)
+    //triangle(o.x,o.y-m.rad,o.x+m.rad*cos(PI/6),o.y+m.rad*sin(PI/6),o.x-m.rad*cos(PI/6),o.y+m.rad*sin(PI/6))
+    quad(o.x-sin(o.rot)*m.rad,o.y-m.rad,o.x+sin(o.rot)*m.rad,o.y-m.rad,o.x-sin(o.rot)*m.rad,o.y+m.rad,o.x+sin(o.rot)*m.rad,o.y+m.rad)
+  }
+
+  //======== River's individual stuff
+  function setupRiver(unit){//every model has it's onw setupModel function
+    //no globals! all 'global' variables must be decalred within your setup function
+    //and should be namespaced as part of your individual model object (m below)
+    var m = {};
+    //m.o={x:320,y:100};
+    m.particleCount = 50;
+    m.particles = [];
+    m.particleCounter = 0;
+
+    for (var i=0; i<m.particleCount; i++) {
+      var magnitude = random(0,2)*unit;//note use of unit
+      var angle = random(0,TWO_PI);
+      m.particles[i] = {
+       x:-1000,
+       y:-1000,
+       vx: magnitude*cos(angle),
+       vy: magnitude*sin(angle),
+       r: random(5,12)*unit,//note use of unit
+       hue: random(0.4,0.45),
+      };
+    }
+
+    //return the model object created in your setupModel function,
+    //it will be added to the models array
+    return m;
+  }
+
+  function drawRiver(m,o,unit){
+    //*** this was in the global draw function, include this kind of stuff in your individual drawModel function instead
+    noStroke()
+    colorMode(HSB, 1)
+    //**
+
+    fill(.5,1,.4,0.01);
+    //rect(0,0,width,height);
+
+    var magnitude = random(0,2)*unit;//note use of unit
+    var angle = random(0,TWO_PI);
+
+    var currentParticle = m.particles[m.particleCounter];
+    m.particleCounter = (m.particleCounter+1) % m.particleCount;
+    currentParticle.x = o.x;//320//mouseX;
+    currentParticle.y = o.y;//100//mouseY;
+    currentParticle.vx = magnitude*cos(angle)
+    currentParticle.vy = magnitude*sin(angle)
+    m.particles.forEach(drawParticle);
+
+    //move all functions into your drawModel function (to make my job easier and avoid naming conflicts)
+    function calculateParticle(particle) {
+      particle.x += particle.vx
+      particle.y += particle.vy
+      particle.vy += .01*unit
+    }
+    function drawParticle(particle) {
+      strokeWeight(5)
+      stroke(particle.hue,.5,1,0)
+      calculateParticle(particle)
+      fill(particle.hue,.5,1,0)//hue,sat,bright,alpha
+      ellipse(particle.x,particle.y,particle.r,particle.r)
+      line(o.x,o.y,particle.x,particle.y)
+    }
+  }
+
+
+
+  // =============== STOP WORKING HERE ==========================
+
+  </script>
+  <style>
+    body { padding: 0; margin: 5% 0 0; background-color: #666;}
+    canvas { margin: 0 auto; display:block; }
+  </style>
+</head>
+<body>
+</body>
+</html>

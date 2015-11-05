@@ -1,0 +1,72 @@
+<html>
+<head>
+  <title>Art / Dev - Motion 2</title>
+  <script src="p5.min.js"></script>
+  <script>
+  var IMAGE_WIDTH = 640;    // Don't change this.
+  var IMAGE_HEIGHT = 640;   // Don't change this.
+
+  var particleCount = 200;
+  var particles = [];
+  var particleCounter = 0;
+
+  //=============== DO ALL YOUR WORK HERE =======================
+
+  function setup() {
+    createCanvas(IMAGE_WIDTH, IMAGE_HEIGHT); // don't change this
+
+     for (var i=0; i<particleCount; i++) {
+      var magnitude = random(0,2);
+      var angle = random(0,TWO_PI);
+       particles[i] = {
+         x:10000,//320+magnitude*cos(angle),
+         y:10000,//320+magnitude*sin(angle),
+         vx: magnitude*cos(angle),//0,
+         vy: magnitude*sin(angle),//0,
+         r: random(5,12),
+         hue: random(0.05,0.1),
+        };
+     }
+     noStroke()
+     colorMode(HSB, 1)
+  }
+
+  function draw() {
+    fill(.5,1,.4,0.01);
+    rect(0,0,width,height);
+
+    var magnitude = random(0,2);
+    var angle = random(0,TWO_PI);
+
+    var currentParticle = particles[particleCounter];
+    particleCounter = (particleCounter+1) % particleCount;
+    currentParticle.x = 320//mouseX;
+    currentParticle.y = 100//mouseY;
+    currentParticle.vx = magnitude*cos(angle)
+    currentParticle.vy = magnitude*sin(angle)
+    particles.forEach(drawParticle);
+  }
+
+  function calculateParticle(particle) {
+    particle.x += particle.vx
+    particle.y += particle.vy
+    particle.vy += .01
+  }
+
+  function drawParticle(particle) {
+    calculateParticle(particle)
+    fill(particle.hue,.5,1,0)//hue,sat,bright,alpha
+    ellipse(particle.x,particle.y,particle.r,particle.r)
+  }
+
+  // =============== STOP WORKING HERE ==========================
+
+  </script>
+  <style>
+    body { padding: 0; margin: 5% 0 0; background-color: #666;}
+    canvas { margin: 0 auto; display:block; }
+  </style>
+</head>
+<body>
+</body>
+</html>

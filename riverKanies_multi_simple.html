@@ -1,0 +1,156 @@
+<html>
+<head>
+  <title>Art / Dev - Motion 2</title>
+  <script src="p5.min.js"></script>
+  <script>
+  var IMAGE_WIDTH = 640;    // Don't change this.
+  var IMAGE_HEIGHT = 640;   // Don't change this.
+
+  //may need to scale models based on different unit values
+  //just assume all same scale for now
+  var unit = 2;
+
+  o = {x:320,y:320};
+  rad = 200;
+  angle = .2;
+  tilt = .5;
+
+//========= Parent Model
+  function setup() {
+    createCanvas(IMAGE_WIDTH, IMAGE_HEIGHT); // don't change this
+
+    //call all setup methods here
+    models = [];
+    setupFuncs = [setupRiver,setupModel,setupModel,setupModel,setupModel,setupModel,setupModel];//everyone's setup functions will go here
+    drawFuncs = [drawRiver,drawModel,drawModel,drawModel,drawModel,drawModel,drawModel];//everyone's draw functions will go here
+
+    //loop through for each model and init the model with it's setup function:
+    for(var i=0;i<setupFuncs.length;i++){
+      models[i] = setupFuncs[i](unit);//all sizing values: radius, magnitue, lenght, velocity, ... should be multiplied by a unit that can be controlled from the outside
+    }
+    
+
+  }
+
+  function draw() {
+    clear();
+
+
+    var origins = [];
+    angle += .002;
+    for(var i=0;i<setupFuncs.length;i++){
+      origins[i] = {
+        x:o.x+rad*cos(angle),
+        y:o.y+rad*sin(angle)*tilt,
+      };
+      angle+=TWO_PI/setupFuncs.length;
+    }
+
+
+    for(var i=0; i<models.length;i++){
+      drawFuncs[i](models[i],origins[i],unit);
+    }
+  }
+
+//=========Individual Models
+
+  function setupModel(unit){//every model has it's onw setupModel function
+    //no globals! all 'global' variables must be decalred within your setup function
+    //and should be namespaced as part of your individual model object (m below)
+    var m = {
+      hue: random(0,1),
+      rad: 100
+    };
+    //return the model object created in your setupModel function,
+    //it will be added to the models array
+    return m;
+  }
+
+  function drawModel(m,o,unit){
+    //*** this was in the global draw function, include this kind of stuff in your individual drawModel function instead
+    noStroke()
+    colorMode(HSB, 1)
+    //**
+
+    fill(.5,1,.4,0.01);
+    //rect(0,0,width,height);
+
+    fill(m.hue,.5,1,0)
+    ellipse(o.x,o.y,m.rad*unit,m.rad*unit)
+
+  }
+
+  //======== River's individual stuff
+  function setupRiver(unit){//every model has it's onw setupModel function
+    //no globals! all 'global' variables must be decalred within your setup function
+    //and should be namespaced as part of your individual model object (m below)
+    var m = {};
+    //m.o={x:320,y:100};
+    m.particleCount = 100;
+    m.particles = [];
+    m.particleCounter = 0;
+
+    for (var i=0; i<m.particleCount; i++) {
+      var magnitude = random(0,2)*unit;//note use of unit
+      var angle = random(0,TWO_PI);
+      m.particles[i] = {
+       x:10000,
+       y:10000,
+       vx: magnitude*cos(angle),
+       vy: magnitude*sin(angle),
+       r: random(5,12)*unit,//note use of unit
+       hue: random(0.4,0.45),
+      };
+    }
+
+    //return the model object created in your setupModel function,
+    //it will be added to the models array
+    return m;
+  }
+
+  function drawRiver(m,o,unit){
+    //*** this was in the global draw function, include this kind of stuff in your individual drawModel function instead
+    noStroke()
+    colorMode(HSB, 1)
+    //**
+
+    fill(.5,1,.4,0.01);
+    //rect(0,0,width,height);
+
+    var magnitude = random(0,2)*unit;//note use of unit
+    var angle = random(0,TWO_PI);
+
+    var currentParticle = m.particles[m.particleCounter];
+    m.particleCounter = (m.particleCounter+1) % m.particleCount;
+    currentParticle.x = o.x;//320//mouseX;
+    currentParticle.y = o.y;//100//mouseY;
+    currentParticle.vx = magnitude*cos(angle)
+    currentParticle.vy = magnitude*sin(angle)
+    m.particles.forEach(drawParticle);
+
+    //move all functions into your drawModel function (to make my job easier and avoid naming conflicts)
+    function calculateParticle(particle) {
+      particle.x += particle.vx
+      particle.y += particle.vy
+      particle.vy += .01*unit
+    }
+    function drawParticle(particle) {
+      calculateParticle(particle)
+      fill(particle.hue,.5,1,0)//hue,sat,bright,alpha
+      ellipse(particle.x,particle.y,particle.r,particle.r)
+    }
+  }
+
+
+
+  // =============== STOP WORKING HERE ==========================
+
+  </script>
+  <style>
+    body { padding: 0; margin: 5% 0 0; background-color: #666;}
+    canvas { margin: 0 auto; display:block; }
+  </style>
+</head>
+<body>
+</body>
+</html>
