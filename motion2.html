@@ -1,0 +1,123 @@
+<html>
+<head>
+  <title>Art / Dev - Motion 2</title>
+  <script src="p5.min.js"></script>
+  <script>
+  var IMAGE_WIDTH = 640;    // Don't change this.
+  var IMAGE_HEIGHT = 640;   // Don't change this.
+
+  var particleCount = 100;
+  var particles = [];
+  var particleCounter = 0;
+  var centerX = IMAGE_WIDTH / 2;
+  var centerY = IMAGE_HEIGHT / 2;
+  var edge = 300;
+  var avoidRadius = 10;
+  var avoidance = .01;
+  var attraction = .0001;
+  var alignment = .001;
+
+  //=============== DO ALL YOUR WORK HERE =======================
+
+  function setup() {
+    createCanvas(IMAGE_WIDTH, IMAGE_HEIGHT); // don't change this
+
+     for (var i=0; i<particleCount; i++) {
+       var speed = random(1,2);
+       var angle = random(0,2*PI);
+       particles[i] = {
+         x:centerX + random(-100,100),
+         y:centerY + random(-100,100),
+         vx: speed*cos(angle),
+         vy: speed*sin(angle)
+        };
+     }
+     noStroke()
+     colorMode(HSB, 1)
+  }
+
+  function draw() {
+    fill(.5,0,.4,1)
+    rect(0,0,width,height)
+
+    particles.forEach(updateParticle)
+    particles.forEach(drawParticle)
+  }
+
+  function updateParticle(particle) {
+    particle.x += particle.vx;
+    particle.y += particle.vy;
+
+    var avoidX = 0;
+    var avoidY = 0
+    var attractX = 0;
+    var attractY = 0;
+    var alignX = 0;
+    var alignY = 0;
+
+    particles.forEach(function(other) {
+      if (particle===other) return;
+
+      var r = distance(particle.x,particle.y,other.x,other.y)
+
+      if (r < avoidRadius) {
+        avoidX += particle.x - other.x
+        avoidY += particle.y - other.y
+      } else {
+        attractX += other.x
+        attractY += other.y
+
+        alignX += other.vx
+        alignY += other.vy
+      }
+    })
+
+    var otherCount = particleCount - 1
+    particle.vx += avoidance * avoidX
+    particle.vy += avoidance * avoidY
+
+    particle.vx += attraction * attractX/otherCount
+    particle.vy += attraction * attractY/otherCount
+
+    particle.vx += alignment * alignX/otherCount
+    particle.vy += alignment * alignY/otherCount
+
+    var distanceFromCenter = distance(particle.x, particle.y,
+                                      centerX, centerY);
+    if (distanceFromCenter > edge) {
+      var direction = directionTowards(particle.x, particle.y,
+                                        centerX, centerY)
+      var power = .001 * (distanceFromCenter - edge)
+      particle.vx += direction.x * power
+      particle.vy += direction.y * power
+    }
+  }
+
+  function lerp(a,b,x) { return a + x*(b-a); }
+
+  function distance(x1,y1,x2,y2) {
+    return sqrt(pow(x2-x1,2) + pow(y2-y1,2))
+  }
+
+  function directionTowards(x1,y1,x2,y2) {
+    var d = distance(x1,y1,x2,y2)
+    if (d == 0) return {x:1, y:0}
+    return {x: (x2-x1)/d, y:(y2-y1)/d}
+  }
+
+  function drawParticle(particle) {
+    fill(1,0,1)
+    ellipse(particle.x,particle.y,5,5)
+  }
+
+  // =============== STOP WORKING HERE ==========================
+
+  </script>
+  <style>
+    body { padding: 0; margin: 5% 0 0; background-color: #666;}
+    canvas { margin: 0 auto; display:block; }
+  </style>
+</head>
+<body>
+</body>
+</html>

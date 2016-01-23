@@ -6,7 +6,7 @@
   var IMAGE_WIDTH = 640;    // Don't change this.
   var IMAGE_HEIGHT = 640;   // Don't change this.
 
-  var particleCount = 100;
+  var particleCount = 300;
   var particles = [];
   var particleCounter = 0;
 
@@ -17,8 +17,13 @@
 
      for (var i=0; i<particleCount; i++) {
        particles[i] = {
-         x:10000,
-         y:10000,
+         x: 320,
+         y: 320,
+         vx: 0,
+         vy: 0,
+         curl: 0,
+         r: random(2, 4),
+         hue: random(-.2,.2)
         };
      }
      noStroke()
@@ -26,18 +31,34 @@
   }
 
   function draw() {
-    fill(.5,0,.4)
+    fill(.5,0,.4,.1)
     rect(0,0,width,height)
 
+    var currentParticle = particles[particleCounter]
+    var magnitude = random(2,4)
+    var angle = random(0,2*PI)
+    currentParticle.x = mouseX
+    currentParticle.y = mouseY
+    // currentParticle.r = random(5, 10)
+    currentParticle.vx = magnitude*cos(angle)
+    currentParticle.vy = magnitude*sin(angle)
+    currentParticle.curl = pow(random(-1,1),7)
+
+    particleCounter = (particleCounter+1) % particleCount
+    particles.forEach(calculateParticle)
     particles.forEach(drawParticle)
   }
 
   function calculateParticle(particle) {
+    particle.x += particle.vx
+    particle.y += particle.vy
+    particle.vx += particle.curl*particle.vy
+    particle.vy += -particle.curl*particle.vx
   }
 
   function drawParticle(particle) {
-    fill(1,0,1)
-    ellipse(particle.x,particle.y,10,10)
+    fill(particle.hue,0,1,1)
+    ellipse(particle.x,particle.y,particle.r,particle.r)
   }
 
   // =============== STOP WORKING HERE ==========================
